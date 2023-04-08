@@ -52,7 +52,7 @@ import Detials from "./views/details";
 //Components
 import  Navbar  from "./component/navbar";
 import  Footer  from "./component/footer";
-// import Todo from "./views/todo";
+import TodoAPI from "./views/TodoAPI";
 
 
 //create your first component
@@ -71,7 +71,7 @@ const Layout = () => {
 					<div className="container-xxl hv-100 mt-3" >
 					<Routes>
 						<Route path="/" element={<Home />} />
-						{/* <Route path="/todo" element={<Todo/>} /> */}
+						<Route path="/todoAPI" element={<TodoAPI/>} />
 						<Route path="/table" element={<Table />} />
 						<Route path="/detials" element={<Detials />} />
 						<Route path="*" element={<h1>Not found!</h1>} />
