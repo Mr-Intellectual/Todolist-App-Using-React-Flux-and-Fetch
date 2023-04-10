@@ -1,0 +1,173 @@
+const getState = ({ getStore, getActions, setStore }) => {
+	return {
+		store: {
+			demo: [
+				{
+					title: "FIRST",
+					background: "white",
+					initial: "white"
+				},
+				{
+					title: "SECOND",
+					background: "white",
+					initial: "white"
+				}
+			],
+			tasks: [
+			]
+		},
+		actions: {
+			// Use getActions to call a function within a fuction
+			exampleFunction: () => {
+				getActions().changeColor(0, "green");
+			},
+			loadSomeData: () => {
+				/**
+					fetch().then().then(data => setStore({ "foo": data.bar }))
+				*/
+				console.log('FETCHING')
+				fetch('https://assets.breatheco.de/apis/fake/todos/user/alesanchez', {
+     method: "GET",
+    
+     headers: {
+       "Content-Type": "application/json"
+     }
+   })
+   .then(resp => {
+       console.log(resp.ok); // will be true if the response is successfull
+        console.log(resp.status); // the status code = 200 or code = 400 etc.
+       
+		console.log(resp.json())
+       return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+  .then(data => {
+       //here is were your code should start after the fetch finishes
+       console.log("DATA: ",  data); //this will print on the console the exact object received from the server
+   })
+   .catch(error => {
+       //error handling
+       console.log(error);
+   });
+			},
+
+
+
+			loadSomeData2: () => {
+			
+				let tasks;
+				fetch("https://assets.breatheco.de/apis/fake/todos/user/alesanchez", {
+					method: "GET",
+				   
+					headers: {
+					  "Content-Type": "application/json"
+					}
+				  })
+				.then((response) => response.json())
+				.then((data) => tasks=data);
+				setStore({ tasks: tasks });
+				
+			},
+
+
+			loadSomeData3: () => {
+			
+				let tasks;
+				fetch("https://assets.breatheco.de/apis/fake/todos/user/vasily", {
+					method: "POST",
+				   body: JSON.stringify(),
+					headers: {
+					  "Content-Type": "application/json"
+					}
+				  })
+				.then((response) => response.json())
+				.then((data) => tasks=data);
+				setStore({ tasks: tasks });
+				
+			},
+
+
+
+
+			changeColor: (index, color) => {
+				//get the store
+				const store = getStore();
+
+				//we have to loop the entire demo array to look for the respective index
+				//and change its color
+				const demo = store.demo.map((elm, i) => {
+					if (i === index) elm.background = color;
+					return elm;
+				});
+
+				//reset the global store
+				setStore({ demo: demo });
+			}
+		}
+	};
+};
+
+export default getState;
+
+
+
+
+
+
+
+
+import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
+
+import { Context } from "../store/appContext";
+
+import "../../styles/demo.css";
+
+export const Demo = () => {
+	const { store, actions } = useContext(Context);
+
+	useEffect(() => {
+		// Update the document title using the browser API
+		actions.loadSomeData2()
+		console.log(">>>>>",store)
+	  },[]);
+
+	  useEffect(() => {
+		// Update the document title using the browser API
+		actions.loadSomeData3()
+		console.log(">>>>>",store)
+	  },[]);
+
+
+	return (
+		<div className="container">
+			<ul className="list-group">
+				{store.demo.map((item, index) => {
+					return (
+						<li
+							key={index}
+							className="list-group-item d-flex justify-content-between"
+							style={{ background: item.background }}>
+							<Link to={"/single/" + index}>
+								<span>Link to: {item.title}</span>
+							</Link>
+							{// Conditional render example
+							// Check to see if the background is orange, if so, display the message
+							item.background === "orange" ? (
+								<p style={{ color: item.initial }}>
+									Check store/flux.js scroll to the actions to see the code
+								</p>
+							) : null}
+							<button className="btn btn-success" onClick={() => actions.changeColor(index, "orange")}>
+								Change Color
+							</button>
+						</li>
+					);
+				})}
+			</ul>
+			<br />
+			<Link to="/">
+				<button className="btn btn-primary">Back home</button>
+			</Link>
+		</div>
+	);
+};
