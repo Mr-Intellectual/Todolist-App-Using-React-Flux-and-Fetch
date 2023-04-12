@@ -171,3 +171,10 @@ export const Demo = () => {
 		</div>
 	);
 };
+
+
+
+
+
+website 
+https://www.bezkoder.com/javascript-fetch/
