@@ -7,6 +7,7 @@
     display: flex;
     width: 100%;
     flex-direction: column;
+    min-width: 785px;
   }
   .Footer{
     margin-top: auto;

@@ -1,0 +1,345 @@
+
+let log = console.log
+
+
+const getState = ({ getStore, getActions, setStore }) => {
+
+
+    return {
+        store: {
+            apiUsersList: [
+                {
+                    "Users": []
+                }
+            ],
+            appUsersList: [
+                {
+                    "Users": []
+                }
+            ],
+            list: [
+                {
+                    "Task Info": "0--",
+                    "ID Info": 12345,
+                    "Created": "Jan. 23, 2023",
+                    "Status": { "Status": "Pending", "Color": "danger" },
+                    "Memo": "",
+
+                },
+
+            ],
+            statusArr: [
+                { "Status": "Pending", "Color": "danger" },
+                { "Status": "In progress", "Color": "warning" },
+                { "Status": "Fixed", "Color": "info" },
+                { "Status": "50% Complete", "Color": "primary" },
+                { "Status": "Completed", "Color": "success" }
+            ],
+            userNameHolder: [
+                {
+                    "User Info": "",
+                    "Name Taken": false
+                }
+            ],
+            holder: "",
+            switch: false,
+            details: [],
+            memoHolder: "",
+
+        },
+        actions: {
+
+            sendButton: (e) => {
+                const store = getStore();
+                const Info = getActions().ranInfo();
+                const inputValue = store.userNameHolder;
+                const memo = store.memoHolder;
+                let input1 = document.querySelector('#userName')
+
+                if (inputValue === "") {
+                    //Use toaster
+                    getActions().showToast("The Username is empty...Please enter a name!")
+
+                    //   alert("The input cannot be empty");
+                } else {
+                    const newObject = {
+                        "Task Info": inputValue,
+                        "ID Info": Info.ID,
+                        "Created": Info.Date,
+                        "Status": Info.Status,
+                        "Memo": memo
+                    };
+                    //   console.log(newObject);
+                    console.log(store);
+
+                    const newList = [...store.list, newObject];
+                    setStore({ list: newList });
+                    setStore({ userNameHolder: "" }); // reset the input value after adding a new task
+                    setStore({ memoHolder: "" });
+                    setStore({ appUsersList: newList });
+                    //   console.log(e.target.parentNode.querySelector('#input1'))
+                }
+                input1.value = ""
+            },
+
+            // Use getActions to call a function within a fuction
+            trashIcon: (i) => {
+                const store = getStore();
+                const newList = store.list.filter((item) => { return item != store.list[i] })
+                setStore({ list: newList })
+            },
+
+            setUserNameHolder: (e) => {
+                // console.log(e.target.value)
+                if (e.target.value) {
+                    setStore({ userNameHolder: e.target.value });
+                } else {
+                    setStore({ userNameHolder: "" });
+                }
+            },
+
+            setHolder: (e) => {
+                if (e.target.value) {
+                    setStore({ holder: e.target.value });
+                }
+            },
+
+            keyPress: (e) => {
+                const store = getStore();
+                const Info = getActions().ranInfo();
+                const memo = store.memoHolder;
+                const inputValue = store.userNameHolder;
+                // console.log(Info)
+                // console.log(inputValue);
+                let input1 = document.querySelector('#userName')
+                if (e.key === "Enter" && inputValue === "") {
+                    alert("The input cannot be empty");
+                } else if (e.key === "Enter") {
+                    const newObject = {
+                        "Task Info": inputValue,
+                        "ID Info": Info.ID,
+                        "Created": Info.Date,
+                        "Status": Info.Status,
+                        "Memo": memo
+                    };
+                    console.log(newObject);
+                    console.log(store);
+
+                    const newList = [...store.list, newObject];
+                    setStore({ list: newList });
+                    setStore({ userNameHolder: "" }); // reset the input value after adding a new task
+                    setStore({ memoHolder: "" });
+                    input1.value = ""
+                }
+            },
+
+            ranInfo: () => {
+                const store = getStore();
+                let statusArr = [
+                    { "Status": "Pending", "Color": "danger" },
+                    { "Status": "In progress", "Color": "warning" },
+                    { "Status": "Fixed", "Color": "info" },
+                    { "Status": "50% Complete", "Color": "primary" },
+                    { "Status": "Completed", "Color": "success" }
+                ];
+                let statIndex = Math.floor(Math.random() * statusArr.length);
+                let month = [
+                    "Jan.",
+                    "Feb.",
+                    "Mar.",
+                    "Apr.",
+                    "May",
+                    "June",
+                    "July",
+                    "Aug.",
+                    "Sep.",
+                    "Oct.",
+                    "Nov.",
+                    "Dec."
+                ];
+                let day = Math.floor(Math.random() * 27) + 1;
+                let year = "20" + (Math.floor(Math.random() * 1) + 23);
+                const newRanInfo = {
+                    "ID": Math.floor(Math.random() * Math.pow(10, 6)),
+                    "Status": statusArr[statIndex],
+                    "Date": `${month[Math.floor(Math.random() * month.length)]} ${day} ${year}`,
+                    "Memo": ""
+                };
+                //Added not to spam the API
+                if (store.memoHolder === "") {
+                    setStore({ memoHolder: "Waiting" });
+                    // getActions().fetchData();
+                }
+                setTimeout(2000)
+                // console.log("memo",getStore().memoHolder)
+                return newRanInfo;
+            },
+
+            showToast: (msg) => {
+                const myToast = document.getElementById('myToast');
+                const toast = new bootstrap.Toast(myToast);
+                const toastBody = myToast.querySelector('.toast-body');
+                toastBody.textContent = msg;
+                toast.show();
+            },
+
+
+            /*=========================== FetchAPI Section Start =========================*/
+
+
+
+            // checkUserName: () => {
+            //     const store = getStore();
+            //     const inputValue = store.userNameHolder[0]["User Info"];
+            //     log(inputValue, store)
+            //     for (let i = 0; i < store.apiUsersList["Users"].length; i++) {
+            //         const item = store.apiUsersList["Users"][i];
+
+            //         if (inputValue["User Info"] === item && inputValue["User Info"] !== "") {
+            //             setStore({ userNameHolder: [{ ...store.userNameHolder[0], "Name Taken": true }] });
+            //             getActions().showToast("Username is already taken.");
+            //             break;
+            //         } else {
+            //             setStore({ userNameHolder: [{ ...store.userNameHolder[0], "Name Taken": false }] });
+            //         }
+            //     }
+            //     log(inputValue, store)
+
+            // },
+
+            fetchApiUsersSend: () => {
+                //POST
+                const store = getStore();
+
+
+                let tasks;
+                fetch("https://assets.breatheco.de/apis/fake/todos/user/vasily", {
+                    method: "POST",
+                    body: JSON.stringify(),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then((response) => response.json())
+                    .then((data) => tasks = data);
+                setStore({ tasks: tasks });
+            },
+
+            fetchApiUsers: () => {
+                const store = getStore();
+                log(store.apiUsersList)
+                const url = 'https://assets.breatheco.de/apis/fake/todos/user';
+                return new Promise((resolve, reject) => {
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("USERS");
+                            data.forEach((item, index) => {
+                                // console.log(item)
+                            });
+                            setStore({ apiUsersList: { "Users": data } });
+                            log(store.apiUsersList["Users"]); // moved inside the second then block
+                            //   store.apiUsersList["Users"].forEach(i=>log(i)); // moved inside the second then block
+
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            reject(error);
+                        });
+                });
+            },
+
+
+            fetchData: () => {
+                let ranInt = Math.floor(Math.random() * 21) + 95;
+                const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://asdfast.beobit.net/api/?type=word&length=' + ranInt + '&startLorem=true');
+                return new Promise((resolve, reject) => {
+                    // Time control nod to spam the api
+                    setTimeout(() => {
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                const parsedJson = JSON.parse(data.contents);
+                                console.log("JSON", parsedJson.text)
+                                setStore({ memoHolder: parsedJson.text });
+                                resolve(parsedJson.text);
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                reject(error);
+                            });
+                    }, 100); // 1 second delay
+                });
+            },
+
+
+            loadSomeData3: () => {
+                const store = getStore();
+
+                let tasks;
+                fetch("https://assets.breatheco.de/apis/fake/todos/user/vasily", {
+                    method: "POST",
+                    body: JSON.stringify(),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                    .then((response) => response.json())
+                    .then((data) => tasks = data);
+                setStore({ tasks: tasks });
+
+            },
+
+
+
+
+            /*=========================== FetchAPI Section End =========================*/
+
+            /*=========================== Fix Section =========================*/
+            ranClick: (e) => {
+                const store = getStore();
+                const switchValue = store.switch;
+                const switchElement1 = document.querySelector("#switch");
+                const switchElement2 = document.querySelector("#statusIcon");
+                const status = document.querySelectorAll(".badge")
+
+                if (e.target.id !== "switchIcon" && e.target !== switchElement1 && e.target !== switchElement2) {
+
+                    status.forEach((i) => {
+                        i.removeAttribute("data-bs-toggle", "modal");
+                        i.removeAttribute("data-bs-target", "#Modal");
+                        i.removeAttribute("data-bs-whatever", "@getbootstrap");
+                    })
+                    setStore({ switch: false });
+                } else if (switchValue === false) {
+                    // console.log("its false")
+                }
+            },
+
+            switchStatusButton: (e) => {
+                //need code..
+                const store = getStore();
+                const switchValue = store.switch;
+                let statusButton = false,
+                    status = document.querySelectorAll(".badge")
+
+                if (e.target.parentNode.parentNode.querySelector("#switch").id === "switch") {
+                    status.forEach((i) => {
+                        i.setAttribute("data-bs-toggle", "modal");
+                        i.setAttribute("data-bs-target", "#Modal");
+                        i.setAttribute("data-bs-whatever", "@getbootstrap");
+                    })
+
+                    statusButton = true
+                    setStore({ switch: statusButton })
+                }
+            },
+
+
+
+
+        }
+    };
+};
+
+export default getState;
